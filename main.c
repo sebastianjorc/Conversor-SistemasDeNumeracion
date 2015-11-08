@@ -10,6 +10,14 @@ int longitud(char *cadena) {
 	return valor; 
 } 
 
+char *convertir_a_string(int val, int base){
+	static char buf[32] = {0};
+	int i = 30;
+	for(; val && i ; --i, val /= base)
+		buf[i] = "0123456789abcdef"[val % base];
+	return &buf[i+1];
+}
+
 int convertir_entero(char *cadena) { 
 
 	int potencias[5]={1,10,100,1000,10000}; 
@@ -112,58 +120,83 @@ char* ingresado (int op){
 	return x;		
 }
 
+char* transformar_a_decimal(int op_entrada, char *x){
+	
+	int base;
+	int valor=0;
+	switch (op_entrada){
+		case 1: base=2;	break;
+		case 2: base=8;	break;
+		case 4: base=16;break;
+	}		
+	
+	if (op_entrada!=4){
+		
+		int tam=longitud(x);
+		int a=base;
+		int b;
+		for (int p=0; p<tam-2; p++)	a=a*base;
+		
+		for (int i=0; i<tam; i++){
+			b=(x[i]-'0');
+			valor=valor+(b*a);	
+			a=a/base;		
+		}						
+	}
+	char *salida=convertir_a_string(valor,10);	
+	return salida;	
+}
+
 char* desde_decimal(char* x, int op_salida){
+	
 	int base;
 	switch (op_salida){
 		case 1: base=2;	break;
 		case 2: base=8;	break;
+		case 3: base=10;break;
 		case 4: base=16;break;
-	}
-					
-		int valor=convertir_entero(x);	
-		int restos[20];
-		int flag=1;
-		int i=-1;
-		
-		printf("%i base 10 = x\n", valor);
-		while(flag){
-
+	}					
+	int valor=convertir_entero(x);	
+	int restos[20];
+	int flag=1;
+	int i=-1;
+	
+	while(flag){
 			i++;						
-			restos[i]=valor%base;
-			valor=valor/base;
-			if (valor<base){
-				i++;						
-				restos[i]=valor;
-				flag=0;
-			}
+		restos[i]=valor%base;
+		valor=valor/base;
+		if (valor<base){
+			i++;						
+			restos[i]=valor;
+			flag=0;
 		}
-		long long a=10;
-		for (int p=0; p<i-1; p++)	a=a*10;
+	}
+	long long a=10;
+	for (int p=0; p<i-1; p++)	a=a*10;
+	
+	valor=0;		
+	while (i>=0){
 		
-		valor=0;		
-		while (i>=0){
-			
-			valor=valor + (a*restos[i]);
-			a=a/10;
-			i--;
-		}
-		printf("x = %i base %i\n",valor,base);
-		
-	return "jaja"; 
+		valor=valor + (a*restos[i]);
+		a=a/10;
+		i--;
+	}
+	printf("x = %i base %i\n",valor,base);getchar();
+	char *salida=convertir_a_string(valor,10);
+	
+	return salida; 
 		
 }
 
 char* convertido (int opcion_entrada, int opcion_salida, char* ingresado){
-	char *aux="jaja";
 
 	if (opcion_entrada==3){
-		desde_decimal(ingresado,opcion_salida);
+		return desde_decimal(ingresado,opcion_salida);
 		
 	}
 	else{ getchar();
-//		desde_decimal(tranformar_a_decimal(opcion_entrada,ingresado),opcion_salida);
+		return desde_decimal(transformar_a_decimal(opcion_entrada,ingresado),opcion_salida);
 	}
-	return aux;
 }
 
 void menu (){
@@ -205,7 +238,7 @@ void menu (){
 		opcion_salida=op;
 		y=convertido(opcion_entrada, opcion_salida, x);
 		flag=0;
-		printf("%s",y);	
+		printf("%s",y);	getchar();
 	}
 
 }
