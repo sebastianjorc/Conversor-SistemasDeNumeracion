@@ -25,7 +25,21 @@ int convertir_entero(char *cadena) {
 	int lon = longitud(cadena); 
 
 	for(int i=lon-1; i>=0; i--)	
-		valor += (cadena[i]-'0') * potencias[(lon-i-1)]; 
+		switch(cadena[i]){
+		case 'A': valor += 10 *potencias[(lon-i-1)]; break;
+		case 'a': valor += 10 *potencias[(lon-i-1)]; break;
+		case 'B': valor += 11 *potencias[(lon-i-1)]; break;
+		case 'b': valor += 11 *potencias[(lon-i-1)]; break;
+		case 'C': valor += 12 *potencias[(lon-i-1)]; break;
+		case 'c': valor += 12 *potencias[(lon-i-1)]; break;
+		case 'D': valor += 13 *potencias[(lon-i-1)]; break;
+		case 'd': valor += 13 *potencias[(lon-i-1)]; break;
+		case 'E': valor += 14 *potencias[(lon-i-1)]; break;
+		case 'e': valor += 14 *potencias[(lon-i-1)]; break;
+		case 'F': valor += 15 *potencias[(lon-i-1)]; break;
+		case 'f': valor += 15 *potencias[(lon-i-1)]; break;			
+		default:	valor += (cadena[i]-'0') * potencias[(lon-i-1)]; 
+	}
 	return valor; 
 }
 
@@ -109,7 +123,7 @@ void tipos_renstricciones (int op){
 
 char* ingresado (int op){
 	int flag=0;
-	char* x;
+	char* x=(char*)malloc(30);
 	while (flag==0){
 				
 		tipos_renstricciones(op);
@@ -118,6 +132,39 @@ char* ingresado (int op){
 			flag=1;
 	}	
 	return x;		
+}
+
+char* decimal_a_hexadecimal(int num){
+	
+	int a[100],i,dividendo,cociente,resto,n=0;
+	int valor=num;
+	for(dividendo = valor; dividendo > 0;n++){
+		cociente=dividendo/16;
+		resto=dividendo%16;
+		a[n]=resto;
+		dividendo=cociente;
+	}
+	char salida[n]; int j=0;
+	for( i=n-1; i>=0; i--){
+		switch(a[i]){
+			case 10: salida[j]='A'; break;
+			case 11: salida[j]='B'; break;
+			case 12: salida[j]='C'; break;
+			case 13: salida[j]='D'; break;
+			case 14: salida[j]='E'; break;
+			case 15: salida[j]='F'; break;
+			default: salida[j]="0123456789abcdef"[a[i] % 10];	
+		}j++;
+    }
+    char *aux=salida;
+    return aux;
+}
+
+char* hexadecimal_a_decimal(char* cadena, int base){
+	char* salida;
+	int valor=convertir_entero(cadena);
+	salida=convertir_a_string(valor,base);
+	return salida;
 }
 
 char* transformar_a_decimal(int op_entrada, char *x){
@@ -130,24 +177,26 @@ char* transformar_a_decimal(int op_entrada, char *x){
 		case 4: base=16;break;
 	}		
 	
-	if (op_entrada!=4){
-		
-		int tam=longitud(x);
-		int a=base;
-		int b;
-		for (int p=0; p<tam-2; p++)	a=a*base;
-		
-		for (int i=0; i<tam; i++){
-			b=(x[i]-'0');
-			valor=valor+(b*a);	
-			a=a/base;		
-		}						
-	}
+	if (op_entrada==4) return hexadecimal_a_decimal(x,base);
+	
+	int tam=longitud(x);
+	int a=base;
+	int b;
+	for (int p=0; p<tam-2; p++)	a=a*base;
+	
+	for (int i=0; i<tam; i++){
+		b=(x[i]-'0');
+		valor=valor+(b*a);	
+		a=a/base;		
+	}						
 	char *salida=convertir_a_string(valor,10);	
 	return salida;	
 }
 
 char* desde_decimal(char* x, int op_salida){
+	
+	int valor=convertir_entero(x);	
+	if (op_salida==4) return decimal_a_hexadecimal(valor);
 	
 	int base;
 	switch (op_salida){
@@ -156,7 +205,6 @@ char* desde_decimal(char* x, int op_salida){
 		case 3: base=10;break;
 		case 4: base=16;break;
 	}					
-	int valor=convertir_entero(x);	
 	int restos[20];
 	int flag=1;
 	int i=-1;
@@ -181,7 +229,6 @@ char* desde_decimal(char* x, int op_salida){
 		a=a/10;
 		i--;
 	}
-	printf("x = %i base %i\n",valor,base);getchar();
 	char *salida=convertir_a_string(valor,10);
 	
 	return salida; 
@@ -194,7 +241,7 @@ char* convertido (int opcion_entrada, int opcion_salida, char* ingresado){
 		return desde_decimal(ingresado,opcion_salida);
 		
 	}
-	else{ getchar();
+	else{
 		return desde_decimal(transformar_a_decimal(opcion_entrada,ingresado),opcion_salida);
 	}
 }
@@ -205,7 +252,7 @@ void menu (){
 	char* x;
 	char* y;
 
-	while (flag){
+	while (flag==1){
 
 		printf("Escoga el tipo de valor a convertir: \n");
 		tipos();
@@ -240,7 +287,6 @@ void menu (){
 		flag=0;
 		printf("%s",y);	getchar();
 	}
-
 }
 
 int main(){
