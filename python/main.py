@@ -1,5 +1,3 @@
-#Funcion imprimir
-
 #Funcion convertir desde decimal
 def desde_decimal (numero, base_salida):
 	salida = ''
